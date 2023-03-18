@@ -1,0 +1,22 @@
+version: '3.9'
+
+networks:
+  code-editor-network:
+    name: code-editor-network
+    driver: bridge
+
+services:
+  code-editor-nestjs:
+    build: .
+    container_name: code-editor-nestjs
+    image: code-editor-nestjs:latest
+    env_file:
+      - .env
+    environment:
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ${PWD}:/app
+    ports:  
+      - 3000:3000
+    networks:
+      - code-editor-network
