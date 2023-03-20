@@ -28,7 +28,7 @@ services:
     restart: always
     container_name: code-editor-database
     environment:
-      - POSTGRES_PASSWORD=CC%Z53*wAZq1n89ce
+      - POSTGRES_PASSWORD=qAeMLDkV3&i274x1Yh
       - TZ=America/Sao_Paulo
     ports:
       - 5432:5432
