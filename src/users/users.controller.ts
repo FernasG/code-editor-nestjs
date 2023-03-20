@@ -1,14 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { LocalAuthGuard, Public } from '@guards';
+import { AuthenticationService } from '@authentication';
 import { CreateUserDto } from './users.interface';
 import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService, private readonly authenticationService: AuthenticationService
+  ) { }
 
   @Post()
+  @Public()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('login')
+  @Public()
+  @UseGuards(LocalAuthGuard)
+  login(@Req() req: any) {
+    return this.authenticationService.login(req.user);
   }
 
   @Get()

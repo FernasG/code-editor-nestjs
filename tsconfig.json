@@ -11,6 +11,8 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
+      "@guards": ["src/guards"],
+      "@guards/*": ["src/guards/*"],
       "@database": ["src/database"],
       "@database/*": ["src/database/*"],
       "@authentication": ["src/authentication"],
