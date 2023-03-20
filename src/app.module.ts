@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthenticationModule } from '@authentication';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import config from './configuration/config';
@@ -11,6 +12,7 @@ import config from './configuration/config';
       inject: [ConfigService],
       useFactory: ((configService: ConfigService) => configService.get('database'))
     }),
+    AuthenticationModule,
     UsersModule
   ]
 })

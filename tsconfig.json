@@ -10,6 +10,12 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@database": ["src/database"],
+      "@database/*": ["src/database/*"],
+      "@authentication": ["src/authentication"],
+      "@authentication/*": ["src/authentication/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
