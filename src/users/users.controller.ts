@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
-import { LocalAuthGuard, Public } from '@guards';
+import { LocalAuthGuard, Public, Role, Roles } from '@guards';
 import { AuthenticationService } from '@authentication';
 import { CreateUserDto } from './users.interface';
 import { UsersService } from './users.service';
@@ -25,6 +25,7 @@ export class UsersController {
   }
 
   @Get()
+  @Roles(Role.Admin)
   findAll() {
     return this.usersService.findAll();
   }
