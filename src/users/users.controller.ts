@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { LocalAuthGuard, Public } from '@guards';
 import { AuthenticationService } from '@authentication';
 import { CreateUserDto } from './users.interface';
@@ -18,6 +18,7 @@ export class UsersController {
 
   @Post('login')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   login(@Req() req: any) {
     return this.authenticationService.login(req.user);

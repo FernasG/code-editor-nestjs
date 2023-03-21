@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { DataSource } from "typeorm";
-import { User } from "@database";
+import { Users } from "@database";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
@@ -9,7 +9,7 @@ export class AuthenticationService {
     constructor(private readonly jwtService: JwtService, private readonly datasource: DataSource) { }
 
     public async validateUser(email: string, password: string) {
-        const user = await this.datasource.getRepository(User).findOne({ where: { email } });
+        const user = await this.datasource.getRepository(Users).findOne({ where: { email } });
 
         if (!user) return null;
 
@@ -20,7 +20,7 @@ export class AuthenticationService {
         return result;
     }
 
-    public async login(user: Partial<User>) {
+    public async login(user: Partial<Users>) {
         const payload = { id: user.id, email: user.email };
         return { ...user, session_token: this.jwtService.sign(payload) };
     }

@@ -1,10 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './users.interface';
+import { Users } from '@database';
+import { Repository } from 'typeorm';
+import { CreateUserDto, ENCRYPT_SALT_ROUNDS } from './users.interface';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import * as bcrypt from "bcrypt";
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(@InjectRepository(Users) private readonly usersRepository: Repository<Users>) { }
+
+  async create(createUserDto: CreateUserDto) {
+    const { email, username, password: pass } = createUserDto;
+
+    const emailAlreadyTaken = await this.usersRepository.findOne({ where: { email } });
+
+    if (emailAlreadyTaken) throw new BadRequestException();
+
+    const password = bcrypt.hashSync(pass, ENCRYPT_SALT_ROUNDS);
+
+    const user = await this.usersRepository.save({ email, username, password });
+
+    if (!user) throw new InternalServerErrorException();
+
+    return user;
   }
 
   findAll() {
