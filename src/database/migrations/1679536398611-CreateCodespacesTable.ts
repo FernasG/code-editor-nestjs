@@ -28,7 +28,8 @@ export class CreateCodespacesTable1679536398611 implements MigrationInterface {
                 {
                     name: 'filename',
                     type: 'varchar',
-                    length: '100'
+                    length: '100',
+                    isUnique: true
                 },
                 {
                     name: 'language',

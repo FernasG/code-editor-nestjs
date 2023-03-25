@@ -15,6 +15,8 @@
       "@guards/*": ["src/guards/*"],
       "@database": ["src/database"],
       "@database/*": ["src/database/*"],
+      "@libraries": ["src/libraries"],
+      "@libraries/*": ["src/libraries/*"],
       "@authentication": ["src/authentication"],
       "@authentication/*": ["src/authentication/*"]
     },
