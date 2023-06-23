@@ -1,4 +1,4 @@
-import { ConfigurationOptions } from "./config.interface";
+import { ConfigurationOptions } from './config.interface';
 
 export default ((): ConfigurationOptions => ({
     database: {
@@ -9,5 +9,6 @@ export default ((): ConfigurationOptions => ({
     jwt_options: {
         secret: process.env.JWT_SECRET_KEY,
         signOptions: { expiresIn: '8h' }
-    }
+    },
+    hackerearth_api_key: process.env.HACKEREARTH_API_KEY
 }));
