@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
-import { CreateCodespaceDto, UpdateCodespaceDto } from './codespaces.interface';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { CreateCodespaceDto, HackerEarthResponse, SaveCodespaceDto, UpdateCodespaceDto } from './codespaces.interface';
 import { CodespacesService } from './codespaces.service';
 import { Public } from '@guards';
 
@@ -33,9 +33,16 @@ export class CodespacesController {
   }
 
   @Public()
+  @HttpCode(HttpStatus.OK)
   @Post('callback')
-  callback(@Body() apiResponse: any) {
+  callback(@Body() apiResponse: HackerEarthResponse) {
     return this.codespacesService.callback(apiResponse);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('callback')
+  save(@Body() saveCodespaceDto: SaveCodespaceDto) {
+    return this.codespacesService.save(saveCodespaceDto);
   }
 
   @Delete(':id')

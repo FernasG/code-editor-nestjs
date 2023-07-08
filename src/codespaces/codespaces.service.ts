@@ -1,9 +1,9 @@
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { DataSource, In, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
+import { CreateCodespaceDto, HackerEarthRequestCodes, HackerEarthResponse, SaveCodespaceDto, UpdateCodespaceDto, User } from './codespaces.interface';
 import { Codespaces, HackerearthRequests, UsersCodespaces } from '@database';
-import { CreateCodespaceDto, HackerEarthRequestCodes, HackerEarthResponse, UpdateCodespaceDto, User } from './codespaces.interface';
 import { RequestService, UtilsService } from '@libraries';
 
 @Injectable()
@@ -79,14 +79,14 @@ export class CodespacesService {
 
     if (!codespace) throw new NotFoundException();
 
-    const hackerearthRequest = await this.datasource.getRepository(HackerearthRequests).save({});
+    const hackerEarthRequest = await this.datasource.getRepository(HackerearthRequests).save({ codespace_id: codespace.id });
 
-    if (!hackerearthRequest) throw new InternalServerErrorException();
+    if (!hackerEarthRequest) throw new InternalServerErrorException();
 
     const url = 'partner/code-evaluation/submissions/';
     const callback = this.configService.get<string>('hackerearth_callback_url');
     const lang = codespace.language.toUpperCase();
-    const { id: requestId } = hackerearthRequest;
+    const { id: requestId } = hackerEarthRequest;
 
     const response: HackerEarthResponse = await this.requestService.post(url, {
       lang, source: 'print("Hello World!")', time_limit: 15, context: requestId, callback
@@ -100,9 +100,7 @@ export class CodespacesService {
 
     await this.datasource.getRepository(HackerearthRequests).update(requestId, { queue_response: response });
 
-
-
-    return {};
+    return { request: hackerEarthRequest };
   }
 
   public async callback(apiResponse: HackerEarthResponse) {
@@ -122,7 +120,13 @@ export class CodespacesService {
 
     await heRequestsRepository.update(hackerearthRequest.id, { [fieldName]: apiResponse });
 
-    return {};
+    if (code === COMPLETED) {
+      const { result: { run_status: { output } } } = apiResponse;
+
+      await this.datasource.getRepository(HackerearthRequests).update(hackerearthRequest.id, { code_output: output });
+    }
+
+    return { message: 'OK' };
   }
 
   public async remove(id: string) {
@@ -142,13 +146,11 @@ export class CodespacesService {
     return {};
   }
 
-  public async save(id: string, code: string) {
+  public async save(saveCodespaceDto: SaveCodespaceDto) {
+    const { id, code } = saveCodespaceDto;
+
     const codespace = await this.codespacesRepository.findOneBy({ id });
 
     if (!codespace) throw new NotFoundException();
-  }
-
-  private async waitHackerEarth() {
-
   }
 }

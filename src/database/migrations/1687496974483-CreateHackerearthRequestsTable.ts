@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from "typeorm"
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm"
 
 export class CreateHackerearthRequestsTable1687496974483 implements MigrationInterface {
 
@@ -13,6 +13,10 @@ export class CreateHackerearthRequestsTable1687496974483 implements MigrationInt
                     isPrimary: true,
                     isGenerated: true,
                     generationStrategy: 'uuid'
+                },
+                {
+                    name: 'codespace_id',
+                    type: 'uuid'
                 },
                 {
                     name: 'queue_response',
@@ -30,6 +34,11 @@ export class CreateHackerearthRequestsTable1687496974483 implements MigrationInt
                     isNullable: true
                 },
                 {
+                    name: 'code_output',
+                    type: 'text',
+                    isNullable: true
+                },
+                {
                     name: 'created_at',
                     type: 'timestamp',
                     default: 'CURRENT_TIMESTAMP(6)'
@@ -39,6 +48,14 @@ export class CreateHackerearthRequestsTable1687496974483 implements MigrationInt
                     type: 'timestamp',
                     default: 'CURRENT_TIMESTAMP(6)'
                 }
+            ],
+            foreignKeys: [
+                new TableForeignKey({
+                    columnNames: ['codespace_id'],
+                    referencedColumnNames: ['id'],
+                    referencedTableName: 'codespaces',
+                    onDelete: 'CASCADE'
+                })
             ]
         }));
     }
