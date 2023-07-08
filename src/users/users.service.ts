@@ -13,7 +13,7 @@ export class UsersService {
     private readonly datasource: DataSource
   ) { }
 
-  async create(createUserDto: CreateUserDto) {
+  public async create(createUserDto: CreateUserDto) {
     const { email, username, password: pass } = createUserDto;
 
     const emailAlreadyTaken = await this.usersRepository.findOne({ where: { email } });
@@ -37,11 +37,11 @@ export class UsersService {
     return user;
   }
 
-  async findAll() {
+  public async findAll() {
     return this.usersRepository.find();
   }
 
-  async findOne(id: string) {
+  public async findOne(id: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) throw new NotFoundException();
@@ -49,7 +49,7 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  public async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) throw new NotFoundException();
@@ -65,7 +65,7 @@ export class UsersService {
     return user;
   }
 
-  async remove(id: string) {
+  public async remove(id: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) throw new NotFoundException();

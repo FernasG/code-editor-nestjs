@@ -10,5 +10,6 @@ export default ((): ConfigurationOptions => ({
         secret: process.env.JWT_SECRET_KEY,
         signOptions: { expiresIn: '8h' }
     },
-    hackerearth_api_key: process.env.HACKEREARTH_API_KEY
+    hackerearth_api_key: process.env.HACKEREARTH_API_KEY,
+    hackerearth_callback_url: process.env.HACKEREARTH_CALLBACK_URL
 }));
