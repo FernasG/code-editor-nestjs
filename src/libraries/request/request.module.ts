@@ -1,17 +1,19 @@
-import { Module } from "@nestjs/common";
-import { HttpModule } from "@nestjs/axios";
-import { RequestService } from "./request.service";
-import { ConfigService } from "@nestjs/config";
+import { DynamicModule, Module } from '@nestjs/common';
+import { HttpModule, HttpModuleAsyncOptions } from '@nestjs/axios';
+import { RequestService } from './request.service';
 
 @Module({
-    imports: [HttpModule.registerAsync({
-        inject: [ConfigService],
-        useFactory: ((configService) => ({
-            baseURL: 'https://api.hackerearth.com/v4',
-            headers: { 'client-secret': configService.get('hackerearth_api_key') }
-        }))
-    })],
-    providers: [RequestService],
-    exports: [RequestService]
+  imports: [HttpModule],
+  providers: [RequestService],
+  exports: [RequestService]
 })
-export class RequestModule { }
+export class RequestModule {
+  static async registerAsync(options: HttpModuleAsyncOptions): Promise<DynamicModule> {
+    return {
+      module: RequestModule,
+      providers: [RequestService],
+      imports: [HttpModule.registerAsync(options)],
+      exports: [RequestService]
+    }
+  }
+}
