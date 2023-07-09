@@ -3,14 +3,14 @@ import { DataSource, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { CreateCodespaceDto, HackerEarthRequestCodes, HackerEarthResponse, SaveCodespaceDto, UpdateCodespaceDto, User } from './codespaces.interface';
+import { HackerEarthService, RequestService, UtilsService } from '@libraries';
 import { Codespaces, HackerearthRequests, UsersCodespaces } from '@database';
-import { RequestService, UtilsService } from '@libraries';
 
 @Injectable()
 export class CodespacesService {
   constructor(
-    @InjectRepository(HackerearthRequests) private readonly hackerearthRequestsRepository: Repository<HackerearthRequests>,
     @InjectRepository(Codespaces) private readonly codespacesRepository: Repository<Codespaces>,
+    private readonly hackarEarthApi: HackerEarthService,
     private readonly requestService: RequestService,
     private readonly configService: ConfigService,
     private readonly utilsService: UtilsService,
@@ -83,14 +83,9 @@ export class CodespacesService {
 
     if (!hackerEarthRequest) throw new InternalServerErrorException();
 
-    const url = 'partner/code-evaluation/submissions/';
-    const callback = this.configService.get<string>('hackerearth_callback_url');
-    const lang = codespace.language.toUpperCase();
     const { id: requestId } = hackerEarthRequest;
 
-    const response: HackerEarthResponse = await this.requestService.post(url, {
-      lang, source: 'print("Hello World!")', time_limit: 15, context: requestId, callback
-    });
+    const response = await this.hackarEarthApi.run(requestId, codespace.language, 'print("Hello World!")');
 
     if (!response) throw new InternalServerErrorException();
 
@@ -123,7 +118,9 @@ export class CodespacesService {
     if (code === COMPLETED) {
       const { result: { run_status: { output } } } = apiResponse;
 
-      await this.datasource.getRepository(HackerearthRequests).update(hackerearthRequest.id, { code_output: output });
+      const response = await this.requestService.get(output);
+
+      await this.datasource.getRepository(HackerearthRequests).update(hackerearthRequest.id, { code_output: response });
     }
 
     return { message: 'OK' };

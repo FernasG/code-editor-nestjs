@@ -3,16 +3,15 @@ import { HttpModule, HttpModuleAsyncOptions } from '@nestjs/axios';
 import { RequestService } from './request.service';
 
 @Module({
-  imports: [HttpModule],
   providers: [RequestService],
   exports: [RequestService]
 })
 export class RequestModule {
-  static async registerAsync(options: HttpModuleAsyncOptions): Promise<DynamicModule> {
+  static registerAsync(options?: HttpModuleAsyncOptions): DynamicModule {
     return {
       module: RequestModule,
       providers: [RequestService],
-      imports: [HttpModule.registerAsync(options)],
+      imports: [options ? HttpModule.registerAsync(options) : HttpModule.register({})],
       exports: [RequestService]
     }
   }

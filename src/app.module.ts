@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthenticationModule } from '@authentication';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
 import { CodespacesModule } from './codespaces/codespaces.module';
+import { UsersModule } from './users/users.module';
 import config from './configuration/config';
 
 @Module({
