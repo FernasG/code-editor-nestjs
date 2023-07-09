@@ -1,9 +1,8 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DataSource, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
 import { CreateCodespaceDto, HackerEarthRequestCodes, HackerEarthResponse, SaveCodespaceDto, UpdateCodespaceDto, User } from './codespaces.interface';
-import { HackerEarthService, RequestService, UtilsService } from '@libraries';
+import { HackerEarthService, RequestService, StorageService, UtilsService } from '@libraries';
 import { Codespaces, HackerearthRequests, UsersCodespaces } from '@database';
 
 @Injectable()
@@ -12,7 +11,7 @@ export class CodespacesService {
     @InjectRepository(Codespaces) private readonly codespacesRepository: Repository<Codespaces>,
     private readonly hackarEarthApi: HackerEarthService,
     private readonly requestService: RequestService,
-    private readonly configService: ConfigService,
+    private readonly storageService: StorageService,
     private readonly utilsService: UtilsService,
     private readonly datasource: DataSource
   ) { }
@@ -21,7 +20,8 @@ export class CodespacesService {
     const { name, description, language } = createCodespaceDto;
 
     const randomHash = this.utilsService.generateRandomString();
-    const filename = `${randomHash}.py`;
+    const ext = language === 'python' ? 'py' : 'js';
+    const filename = `${randomHash}.${ext}`;
 
     const codespace = await this.codespacesRepository.save({ name, description, language, filename });
 
@@ -85,7 +85,11 @@ export class CodespacesService {
 
     const { id: requestId } = hackerEarthRequest;
 
-    const response = await this.hackarEarthApi.run(requestId, codespace.language, 'print("Hello World!")');
+    const source = await this.storageService.get(codespace.filename);
+
+    if (!source) throw new InternalServerErrorException();
+
+    const response = await this.hackarEarthApi.run(requestId, codespace.language, source);
 
     if (!response) throw new InternalServerErrorException();
 
@@ -149,5 +153,9 @@ export class CodespacesService {
     const codespace = await this.codespacesRepository.findOneBy({ id });
 
     if (!codespace) throw new NotFoundException();
+
+    await this.storageService.upload(codespace.filename, code);
+
+    return {};
   }
 }

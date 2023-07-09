@@ -1,0 +1,1 @@
+export const S3_ASYNC_OPTIONS: symbol = Symbol('S3_ASYNC_OPTIONS');

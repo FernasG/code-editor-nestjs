@@ -40,7 +40,7 @@ export class CodespacesController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('callback')
+  @Post('save')
   save(@Body() saveCodespaceDto: SaveCodespaceDto) {
     return this.codespacesService.save(saveCodespaceDto);
   }
