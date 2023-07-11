@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { CreateCodespaceDto, HackerEarthResponse, SaveCodespaceDto, UpdateCodespaceDto } from './codespaces.interface';
 import { CodespacesService } from './codespaces.service';
 import { Public } from '@guards';
@@ -43,6 +43,11 @@ export class CodespacesController {
   @Post('save')
   save(@Body() saveCodespaceDto: SaveCodespaceDto) {
     return this.codespacesService.save(saveCodespaceDto);
+  }
+
+  @Get('request/:id')
+  request(@Param('id') id: string, @Query('request_id') request_id: string) {
+    return this.codespacesService.request(id, request_id);
   }
 
   @Delete(':id')

@@ -13,7 +13,7 @@ export class HackerEarthService {
 
   public async run(requestId: string, language: string, source: string) {
     const url = 'partner/code-evaluation/submissions/';
-    const lang = language.toUpperCase();
+    const lang = language === 'python' ? 'PYTHON' : 'JAVASCRIPT_NODE';
 
     return this.requestService.post(url, { lang, source, time_limit: TIME_LIMIT, context: requestId, callback: this.callbackURL });
   }

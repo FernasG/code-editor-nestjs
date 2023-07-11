@@ -43,7 +43,7 @@ export interface User {
 
 export interface HackerEarthResponse {
   context: string;
-  result: { run_status: { status: string; output?: string; }; compile_status: string };
+  result: { run_status: { status: string; output?: string; exit_code?: string; stderr?: string; }; compile_status: string };
   he_id: string;
   status_update_url: string;
   request_status: { code: string; message: string; }
@@ -55,4 +55,9 @@ export enum HackerEarthRequestCodes {
   COMPLETED = 'REQUEST_COMPLETED'
 }
 
-export const HACKEREARTH_TIMEOUT: Readonly<number> = 1.5 * 1000; 
+export const HACKEREARTH_TIMEOUT: Readonly<number> = 1.5 * 1000;
+
+export const CODE_TEMPLATE: Readonly<{ [x: string]: string }> = {
+  javascript: 'console.log(\'Hello World!\')',
+  python: 'print("Hello World!")'
+}

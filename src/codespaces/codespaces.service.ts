@@ -1,9 +1,17 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DataSource, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateCodespaceDto, HackerEarthRequestCodes, HackerEarthResponse, SaveCodespaceDto, UpdateCodespaceDto, User } from './codespaces.interface';
 import { HackerEarthService, RequestService, StorageService, UtilsService } from '@libraries';
 import { Codespaces, HackerearthRequests, UsersCodespaces } from '@database';
+import {
+  CreateCodespaceDto,
+  HackerEarthRequestCodes,
+  HackerEarthResponse,
+  UpdateCodespaceDto,
+  SaveCodespaceDto,
+  CODE_TEMPLATE,
+  User
+} from './codespaces.interface';
 
 @Injectable()
 export class CodespacesService {
@@ -22,6 +30,9 @@ export class CodespacesService {
     const randomHash = this.utilsService.generateRandomString();
     const ext = language === 'python' ? 'py' : 'js';
     const filename = `${randomHash}.${ext}`;
+    const code = CODE_TEMPLATE[language];
+
+    await this.storageService.upload(filename, code);
 
     const codespace = await this.codespacesRepository.save({ name, description, language, filename });
 
@@ -54,7 +65,11 @@ export class CodespacesService {
 
     if (!codespace) throw new NotFoundException();
 
-    return codespace;
+    const code = await this.storageService.get(codespace.filename);
+
+    const response = { ...codespace, code };
+
+    return response;
   }
 
   public async update(id: string, updateCodespaceDto: UpdateCodespaceDto) {
@@ -120,11 +135,11 @@ export class CodespacesService {
     await heRequestsRepository.update(hackerearthRequest.id, { [fieldName]: apiResponse });
 
     if (code === COMPLETED) {
-      const { result: { run_status: { output } } } = apiResponse;
+      const { result: { run_status: { output, exit_code, stderr } } } = apiResponse;
 
-      const response = await this.requestService.get(output);
+      const code_output = (exit_code === "0") ? await this.requestService.get(output) : stderr;
 
-      await this.datasource.getRepository(HackerearthRequests).update(hackerearthRequest.id, { code_output: response });
+      await this.datasource.getRepository(HackerearthRequests).update(hackerearthRequest.id, { code_output });
     }
 
     return { message: 'OK' };
@@ -145,6 +160,18 @@ export class CodespacesService {
     if (!deleteResult) throw new InternalServerErrorException();
 
     return {};
+  }
+
+  public async request(id: string, request_id: string) {
+    const codespace = await this.codespacesRepository.findOne({ where: { id } });
+
+    if (!codespace) throw new NotFoundException();
+
+    const request = await this.datasource.getRepository(HackerearthRequests).findOneBy({ id: request_id });
+
+    if (!request) throw new NotFoundException();
+
+    return request;
   }
 
   public async save(saveCodespaceDto: SaveCodespaceDto) {
