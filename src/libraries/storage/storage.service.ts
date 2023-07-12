@@ -21,4 +21,12 @@ export class StorageService {
 
     return s3Response.Body.transformToString();
   }
+
+  public async delete(key: string): Promise<boolean> {
+    const s3Response = await this.s3Service.deleteObject({ Bucket: this.bucketName, Key: key }).catch(err => null);
+
+    if (!s3Response) return false;
+
+    return true;
+  }
 }

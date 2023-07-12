@@ -154,6 +154,7 @@ export class CodespacesService {
       where: { codespace_id: codespace.id }
     });
 
+    await this.storageService.delete(codespace.filename);
     await this.datasource.getRepository(UsersCodespaces).remove(usersCodespaces);
     const deleteResult = await this.codespacesRepository.softDelete(id);
 

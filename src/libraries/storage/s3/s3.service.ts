@@ -6,7 +6,10 @@ import {
   PutObjectCommandOutput,
   GetObjectCommand,
   GetObjectCommandInput,
-  GetObjectCommandOutput
+  GetObjectCommandOutput,
+  DeleteObjectCommand,
+  DeleteObjectCommandInput,
+  DeleteObjectCommandOutput
 } from '@aws-sdk/client-s3';
 
 @Injectable()
@@ -17,5 +20,9 @@ export class S3Service extends S3Client {
 
   public async getObject(input: GetObjectCommandInput): Promise<GetObjectCommandOutput> {
     return this.send(new GetObjectCommand(input)).catch(err => err);
+  }
+
+  public async deleteObject(input: DeleteObjectCommandInput): Promise<DeleteObjectCommandOutput> {
+    return this.send(new DeleteObjectCommand(input)).catch(err => err);
   }
 }
