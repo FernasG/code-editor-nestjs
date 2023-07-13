@@ -12,6 +12,7 @@ import {
   CODE_TEMPLATE,
   User
 } from './codespaces.interface';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class CodespacesService {
@@ -21,7 +22,8 @@ export class CodespacesService {
     private readonly requestService: RequestService,
     private readonly storageService: StorageService,
     private readonly utilsService: UtilsService,
-    private readonly datasource: DataSource
+    private readonly datasource: DataSource,
+    private readonly i18n: I18nService
   ) { }
 
   public async create(user: User, createCodespaceDto: CreateCodespaceDto) {
@@ -36,15 +38,23 @@ export class CodespacesService {
 
     const codespace = await this.codespacesRepository.save({ name, description, language, filename });
 
-    if (!codespace) throw new InternalServerErrorException();
+    if (!codespace) {
+      const message = this.i18n.t('codespaces.create_codespace_failed');
+      throw new InternalServerErrorException(message);
+    }
 
     const insertResult = await this.datasource.getRepository(UsersCodespaces).insert({
       codespace_id: codespace.id, user_id: user.id, codespace_owner: true
     });
 
-    if (!insertResult) throw new InternalServerErrorException();
+    if (!insertResult) {
+      const message = this.i18n.t('codespaces.create_codespace_failed');
+      throw new InternalServerErrorException(message);
+    }
 
-    return codespace;
+    const message = this.i18n.t('codespaces.create_codespace_success');
+
+    return { message, codespace };
   }
 
   public async findAll(user: User) {
@@ -92,29 +102,46 @@ export class CodespacesService {
   public async run(id: string) {
     const codespace = await this.codespacesRepository.findOne({ where: { id } });
 
-    if (!codespace) throw new NotFoundException();
+    if (!codespace) {
+      const message = this.i18n.t('codespaces.codespace_not_found');
+      throw new NotFoundException(message);
+    }
 
     const hackerEarthRequest = await this.datasource.getRepository(HackerearthRequests).save({ codespace_id: codespace.id });
 
-    if (!hackerEarthRequest) throw new InternalServerErrorException();
+    if (!hackerEarthRequest) {
+      const message = this.i18n.t('codespaces.run_code_failed');
+      throw new InternalServerErrorException(message);
+    }
 
     const { id: requestId } = hackerEarthRequest;
 
     const source = await this.storageService.get(codespace.filename);
 
-    if (!source) throw new InternalServerErrorException();
+    if (!source) {
+      const message = this.i18n.t('codespaces.run_code_failed');
+      throw new InternalServerErrorException(message);
+    }
 
     const response = await this.hackarEarthApi.run(requestId, codespace.language, source);
 
-    if (!response) throw new InternalServerErrorException();
+    if (!response) {
+      const message = this.i18n.t('codespaces.run_code_failed');
+      throw new InternalServerErrorException(message);
+    }
 
     const { request_status: { code } } = response;
 
-    if (code !== HackerEarthRequestCodes.QUEUED) throw new InternalServerErrorException();
+    if (code !== HackerEarthRequestCodes.QUEUED) {
+      const message = this.i18n.t('codespaces.run_code_failed');
+      throw new InternalServerErrorException(message);
+    }
 
     await this.datasource.getRepository(HackerearthRequests).update(requestId, { queue_response: response });
 
-    return { request: hackerEarthRequest };
+    const message = this.i18n.t('codespaces.run_code_success');
+
+    return { message, request: hackerEarthRequest };
   }
 
   public async callback(apiResponse: HackerEarthResponse) {
@@ -166,11 +193,17 @@ export class CodespacesService {
   public async request(id: string, request_id: string) {
     const codespace = await this.codespacesRepository.findOne({ where: { id } });
 
-    if (!codespace) throw new NotFoundException();
+    if (!codespace) {
+      const message = this.i18n.t('codespaces.codespace_not_found');
+      throw new NotFoundException(message);
+    }
 
     const request = await this.datasource.getRepository(HackerearthRequests).findOneBy({ id: request_id });
 
-    if (!request) throw new NotFoundException();
+    if (!request) {
+      const message = this.i18n.t('codespsaces.request_not_found');
+      throw new NotFoundException(message);
+    }
 
     return request;
   }
@@ -180,10 +213,20 @@ export class CodespacesService {
 
     const codespace = await this.codespacesRepository.findOneBy({ id });
 
-    if (!codespace) throw new NotFoundException();
+    if (!codespace) {
+      const message = this.i18n.t('codespaces.codespace_not_found');
+      throw new NotFoundException(message);
+    }
 
-    await this.storageService.upload(codespace.filename, code);
+    const s3Response = await this.storageService.upload(codespace.filename, code);
 
-    return {};
+    if (!s3Response) {
+      const message = this.i18n.t('codespaces.save_codespace_failed');
+      throw new NotFoundException(message);
+    }
+
+    const message = this.i18n.t('codespaces.save_codespace_success');
+
+    return { message };
   }
 }
