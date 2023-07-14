@@ -1,0 +1,10 @@
+{
+    "create_codespace_success": "Codespace created successfully.",
+    "create_codespace_failed": "Failed to create codespace.",
+    "codespace_not_found": "Codespace not found.",
+    "run_code_success": "Code is running.",
+    "run_code_failed": "Failed to run code, try again later.",
+    "save_codespace_success": "Codespace saved successfully.",
+    "save_codespace_failed": "Failed to save codespace.",
+    "request_not_found": "Request to run code not found."
+}

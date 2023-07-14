@@ -10,6 +10,16 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@guards": ["src/guards"],
+      "@guards/*": ["src/guards/*"],
+      "@database": ["src/database"],
+      "@database/*": ["src/database/*"],
+      "@libraries": ["src/libraries"],
+      "@libraries/*": ["src/libraries/*"],
+      "@authentication": ["src/authentication"],
+      "@authentication/*": ["src/authentication/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,

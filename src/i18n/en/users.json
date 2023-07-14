@@ -1,0 +1,11 @@
+{
+    "login_failed": "Email or password is incorrect.",
+    "email_already_used": "This email is already taken.",
+    "create_user_failed": "Failed to create user.",
+    "create_user_success": "User created successfully.",
+    "user_not_found": "User not found.",
+    "update_user_failed": "Failed to update user.",
+    "update_user_success": "User updated successfully.",
+    "remove_user_failed": "Failed to remove user.",
+    "remove_user_success": "User removed successfully."
+}

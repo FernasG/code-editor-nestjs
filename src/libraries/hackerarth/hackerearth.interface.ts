@@ -1,0 +1,1 @@
+export const TIME_LIMIT: Readonly<number> = 15;
